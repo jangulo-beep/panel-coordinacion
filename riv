@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Riverine SpA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Importación de Montserrat */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background-color: #f8fafc; 
+            color: #0f172a; 
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, #002244 0%, #004488 100%);
+        }
+
+        .category-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        .category-content.open { 
+            max-height: 1200px; 
+            padding-bottom: 1rem;
+        }
+
+        .link-card {
+            transition: all 0.2s ease;
+        }
+
+        .link-card:hover { 
+            transform: translateX(8px);
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .favorite-star.active { 
+            color: #f59e0b; 
+        }
+
+        .logo-box {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            max-width: 240px;
+            height: 60px;
+            margin: 0 auto;
+        }
+
+        @keyframes bounce-subtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .floating-btn {
+            animation: bounce-subtle 3s infinite ease-in-out;
+            box-shadow: 0 10px 25px -5px rgba(0, 51, 102, 0.4);
+        }
+
+        /* Estilo para sub-categorías */
+        .sub-category-btn {
+            background-color: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+
+    <header class="header-gradient text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-2xl mx-auto px-6 py-6 text-center">
+            <div class="flex flex-col items-center space-y-4">
+                <div class="logo-box">
+                    <img id="companyLogo" 
+                         src="https://cdn.phototourl.com/free/2026-04-09-cebdf9e5-98f9-4e08-8582-d1442659a7f4.png" 
+                         alt="Riverine Logo" 
+                         class="max-h-full max-w-full object-contain">
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.4em] font-bold opacity-80">Gestión de Operaciones Estratégicas</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 mt-8">
+
+        <!-- Buscador -->
+        <div class="relative mb-8">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                <i class="fas fa-search"></i>
+            </span>
+            <input type="text" id="searchInput" placeholder="Buscar planilla o documento..." 
+                class="w-full pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm transition-all font-medium">
+        </div>
+
+        <!-- Favoritos -->
+        <section id="favoritesSection" class="mb-10 hidden">
+            <div class="flex items-center space-x-2 mb-4 px-2">
+                <i class="fas fa-bolt text-amber-500"></i>
+                <h2 class="font-bold text-slate-800 text-xs uppercase tracking-widest">Favoritos</h2>
+            </div>
+            <div id="favoritesList" class="grid grid-cols-1 gap-3"></div>
+        </section>
+
+        <div class="space-y-6">
+
+            <!-- ESTRATEGIA -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <button onclick="toggleCategory('reportes')" class="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-all">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                            <i class="fas fa-chart-pie text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="block font-bold text-slate-800 text-base">Estrategia</span>
+                            <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Reportes y Dashboards</span>
+                        </div>
+                    </div>
+                    <i id="icon-reportes" class="fas fa-plus text-slate-300 transition-transform"></i>
+                </button>
+                <div id="content-reportes" class="category-content px-6 space-y-3">
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://lookerstudio.google.com/reporting/6b24d356-1939-4541-83a2-4d218c55ca24" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-chart-line text-blue-500 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Reporte General Looker</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Visión 360 de la empresa</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Reporte Looker', 'https://lookerstudio.google.com/reporting/6b24d356-1939-4541-83a2-4d218c55ca24', 'ESTRATEGIA')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMERCIAL -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <button onclick="toggleCategory('comercial')" class="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-all">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                            <i class="fas fa-handshake text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="block font-bold text-slate-800 text-base">Comercial</span>
+                            <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Prospectos y Licitaciones</span>
+                        </div>
+                    </div>
+                    <i id="icon-comercial" class="fas fa-plus text-slate-300 transition-transform"></i>
+                </button>
+                <div id="content-comercial" class="category-content px-6 space-y-3">
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://docs.google.com/spreadsheets/d/1ZwSnoIpmRl7oCv8wTr714ZX6QRMh3CRJPtNiPDkVsTE/edit" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-users-viewfinder text-emerald-500 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Catastro de Leads</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Base de prospectos</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Leads', 'https://docs.google.com/spreadsheets/d/1ZwSnoIpmRl7oCv8wTr714ZX6QRMh3CRJPtNiPDkVsTE/edit', 'COMERCIAL')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://docs.google.com/spreadsheets/d/16paHKfAZSX8R2rG3brP7I8skf8mUSFTKzReV6DzsJ3U/edit" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-file-signature text-emerald-500 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Propuestas</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Gestión de propuestas y licitaciones</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Propuestas', 'https://docs.google.com/spreadsheets/d/16paHKfAZSX8R2rG3brP7I8skf8mUSFTKzReV6DzsJ3U/edit', 'COMERCIAL')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://docs.google.com/spreadsheets/d/1TbobOgpEJ_TynTW0NnbUf6ZOEqitrm1u/edit" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-landmark text-emerald-500 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Mercado Público (Yoly)</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Control de licitaciones</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Mercado Público', 'https://docs.google.com/spreadsheets/d/1TbobOgpEJ_TynTW0NnbUf6ZOEqitrm1u/edit', 'COMERCIAL')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://docs.google.com/spreadsheets/d/1EL77s9icVfw7no_M1k8m9mpOL7UZ6IM5TjU7IwShfH8/edit" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-file-invoice-dollar text-emerald-500 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Cotizaciones</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Cotizaciones varias </p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Cotizaciones', 'https://docs.google.com/spreadsheets/d/1EL77s9icVfw7no_M1k8m9mpOL7UZ6IM5TjU7IwShfH8/edit', 'COMERCIAL')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+
+                    <!-- SUB-CATEGORÍA PPTs -->
+                    <div class="mt-4 border-t border-slate-100 pt-4">
+                        <button onclick="toggleCategory('ppts')" class="w-full p-4 rounded-xl sub-category-btn flex items-center justify-between hover:bg-slate-200 transition-all">
+                            <div class="flex items-center space-x-3 text-slate-600">
+                                <i class="fas fa-folder-open"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">Presentación Comercial</span>
+                            </div>
+                            <i id="icon-ppts" class="fas fa-plus text-[10px] text-slate-400 transition-transform"></i>
+                        </button>
+                        
+                        <div id="content-ppts" class="category-content px-2 space-y-2 mt-2">
+                            <div class="link-item flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 link-card">
+                                <a href="https://docs.google.com/presentation/d/1gsqb2rGolHiFW8nqf-_jXmbPWjVnyVJU/edit" target="_blank" class="flex items-center flex-1">
+                                    <i class="fas fa-file-powerpoint text-orange-500 mr-3"></i>
+                                    <div>
+                                        <p class="text-[13px] font-bold text-slate-700">PPT RIVERINE GENERAL</p>
+                                        <p class="text-[10px] text-slate-400">Presentación Riverine</p>
+                                    </div>
+                                </a>
+                                <button onclick="toggleFavorite(this, 'PPT General', 'https://docs.google.com/presentation/d/1gsqb2rGolHiFW8nqf-_jXmbPWjVnyVJU/edit', 'COMERCIAL')" class="favorite-star ml-2 p-1 text-slate-300 hover:text-amber-500"><i class="fas fa-star text-xs"></i></button>
+                            </div>
+                            <div class="link-item flex items-center justify-between p-3 bg-white rounded-lg border border-slate-200 link-card">
+                                <a href="https://docs.google.com/presentation/d/1qpt2h56CadgQTtQT1lzlK-nDW4asq_rZ/edit" target="_blank" class="flex items-center flex-1">
+                                    <i class="fas fa-file-powerpoint text-orange-500 mr-3"></i>
+                                    <div>
+                                        <p class="text-[13px] font-bold text-slate-700">PPT RIVERINE- KIMAL</p>
+                                        <p class="text-[10px] text-slate-400">Presentación Riverine con Kimal</p>
+                                    </div>
+                                </a>
+                                <button onclick="toggleFavorite(this, 'PPT Kimal', 'https://docs.google.com/presentation/d/1qpt2h56CadgQTtQT1lzlK-nDW4asq_rZ/edit', 'COMERCIAL')" class="favorite-star ml-2 p-1 text-slate-300 hover:text-amber-500"><i class="fas fa-star text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPERACIONES -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <button onclick="toggleCategory('operaciones')" class="w-full px-6 py-5 flex items-center justify-between hover:bg-slate-50 transition-all">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+                            <i class="fas fa-tasks text-xl"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="block font-bold text-slate-800 text-base">Operaciones</span>
+                            <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Entregables y Procedimientos</span>
+                        </div>
+                    </div>
+                    <i id="icon-operaciones" class="fas fa-plus text-slate-300 transition-transform"></i>
+                </button>
+                <div id="content-operaciones" class="category-content px-6 space-y-3">
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://www.notion.so/2a2c8faf54f2808e98e9dae1a4087029" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-file-export text-slate-600 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Entregables Proyectos</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Control de entregas</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Entregables', 'https://www.notion.so/2a2c8faf54f2808e98e9dae1a4087029', 'OPERACIONES')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                    <!-- NUEVA PESTAÑA: PROCEDIMIENTOS -->
+                    <div class="link-item flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 link-card">
+                        <a href="https://docs.google.com/spreadsheets/d/1oltOH3NzxgK2lJ-iJBkao9X2EftQa9jHnDV1MJC9Q9Y/edit?usp=sharing" target="_blank" class="flex items-center flex-1">
+                            <i class="fas fa-clipboard-check text-slate-600 mr-4 text-lg"></i>
+                            <div>
+                                <p class="text-sm font-bold text-slate-700">Procedimientos</p>
+                                <p class="text-[11px] text-slate-400 font-medium italic">Catastro procedimientos</p>
+                            </div>
+                        </a>
+                        <button onclick="toggleFavorite(this, 'Procedimientos', 'https://docs.google.com/spreadsheets/d/1oltOH3NzxgK2lJ-iJBkao9X2EftQa9jHnDV1MJC9Q9Y/edit?usp=sharing', 'OPERACIONES')" class="favorite-star ml-2 p-2 text-slate-300 hover:text-amber-500"><i class="fas fa-star"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="mt-16 text-center">
+            <p class="text-[9px] text-slate-400 font-bold tracking-[0.5em] uppercase mb-4">Uso Interno • Riverine SpA 2026</p>
+            <div class="flex justify-center space-x-2 opacity-10">
+                <div class="h-1 w-1 bg-slate-500 rounded-full"></div>
+                <div class="h-1 w-10 bg-slate-500 rounded-full"></div>
+                <div class="h-1 w-1 bg-slate-500 rounded-full"></div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        function toggleCategory(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            const isOpen = content.classList.contains('open');
+            
+            if (isOpen) {
+                content.classList.remove('open');
+                icon.className = icon.classList.contains('text-[10px]') ? 'fas fa-plus text-[10px] text-slate-400 transition-transform' : 'fas fa-plus text-slate-300 transition-transform';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('open');
+                icon.className = icon.classList.contains('text-[10px]') ? 'fas fa-minus text-[10px] text-blue-500 transition-transform' : 'fas fa-minus text-blue-500 transition-transform';
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        let favorites = JSON.parse(localStorage.getItem('riverineFavs_v2')) || [];
+
+        function renderFavorites() {
+            const list = document.getElementById('favoritesList');
+            const section = document.getElementById('favoritesSection');
+            if (favorites.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+            list.innerHTML = '';
+            favorites.forEach(fav => {
+                const item = document.createElement('div');
+                item.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between animate-in slide-in-from-top-2 duration-300";
+                item.innerHTML = `
+                    <a href="${fav.url}" target="_blank" class="flex items-center flex-1">
+                        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mr-4 text-sm border border-amber-100">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">${fav.name}</p>
+                            <p class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">${fav.area}</p>
+                        </div>
+                    </a>
+                    <button onclick="removeFavorite('${fav.name}')" class="text-amber-500 p-2"><i class="fas fa-star active"></i></button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleFavorite(btn, name, url, area) {
+            const index = favorites.findIndex(f => f.name === name);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                btn.classList.remove('active');
+            } else {
+                favorites.push({ name, url, area });
+                btn.classList.add('active');
+            }
+            localStorage.setItem('riverineFavs_v2', JSON.stringify(favorites));
+            renderFavorites();
+        }
+
+        function removeFavorite(name) {
+            favorites = favorites.filter(f => f.name !== name);
+            localStorage.setItem('riverineFavs_v2', JSON.stringify(favorites));
+            renderFavorites();
+            document.querySelectorAll('.favorite-star').forEach(btn => {
+                if (btn.parentElement.textContent.includes(name)) btn.classList.remove('active');
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const links = document.querySelectorAll('.link-item');
+            let found = false;
+            links.forEach(link => {
+                const visible = link.textContent.toLowerCase().includes(term);
+                link.style.display = visible ? 'flex' : 'none';
+                if(visible) found = true;
+            });
+            if (term.length > 0 && found) {
+                document.querySelectorAll('.category-content').forEach(c => c.classList.add('open'));
+            }
+        });
+
+        window.onload = renderFavorites;
+    </script>
+</body>
+</html>
