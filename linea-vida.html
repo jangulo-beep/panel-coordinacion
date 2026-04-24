@@ -136,10 +136,23 @@
         /* Print / PDF styles */
         @media print {
             #actionBar { display: none !important; }
-            body { padding: 8px; background: white; }
-            .main-container { box-shadow: none; border: 1px solid #ccc; border-radius: 4px; }
-            .overflow-wrapper { overflow: visible; }
-            .diagram-grid { min-width: unset; width: 100%; }
+            body {
+                padding: 4px;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            .main-container { box-shadow: none !important; border: 1px solid #ccc; border-radius: 4px; }
+            .overflow-wrapper { overflow: visible !important; }
+            .diagram-grid { min-width: unset !important; width: 100% !important; }
+            .lane-label { position: static !important; box-shadow: none !important; }
+            .process-box:hover { filter: none !important; transform: none !important; }
             @page { size: A3 landscape; margin: 8mm; }
         }
     </style>
@@ -152,7 +165,7 @@
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
             Volver al Panel
         </a>
-        <button onclick="window.print()" class="action-btn btn-pdf">
+        <button onclick="document.fonts.ready.then(()=>window.print())" class="action-btn btn-pdf">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Descargar PDF
         </button>
