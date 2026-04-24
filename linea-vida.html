@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flujo Macro GestiÃ³n de Proyectos Riverine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --riverine-navy: #002351;
+            --stage-header: #002351;
+            --comercial-accent: #2563eb;
+            --comercial-bg: #eff6ff;
+            --ops-accent: #059669;
+            --ops-bg: #ecfdf5;
+            --admin-accent: #334155;
+            --admin-bg: #f8fafc;
+            --text-white: #ffffff;
+            --text-gray: #64748b;
+            --border-color: #cbd5e1;
+            --zebra-bg: rgba(248, 250, 252, 0.5);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #e2e8f0;
+            padding: 32px;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Barra de acciones (botÃ³n PDF) */
+        #actionBar {
+            max-width: 1600px;
+            margin: 0 auto 16px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-pdf {
+            background-color: #002351;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,35,81,0.25);
+        }
+        .btn-pdf:hover { background-color: #003070; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,35,81,0.35); }
+        .btn-back {
+            background-color: white;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-back:hover { background-color: #f8fafc; }
+        .btn-icon { width: 16px; height: 16px; }
+
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .header {
+            background-color: var(--riverine-navy);
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-white);
+        }
+        .header-text h1 { font-size: 24px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .header-text p { font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.2em; color: #cbd5e1; opacity: 0.8; }
+        .logo-container { height: 80px; }
+        .logo-container img { height: 100%; width: auto; object-fit: contain; }
+        .overflow-wrapper { overflow-x: auto; }
+        .diagram-grid { min-width: 1300px; display: grid; grid-template-columns: 192px repeat(6, 1fr); }
+        .stage-header { background-color: var(--stage-header); color: var(--text-white); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .header-cell { padding: 16px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); }
+        .header-cell:last-child { border-right: none; }
+        .header-cell .title { font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+        .header-cell .subtitle { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; }
+        .lane-label-header { font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; opacity: 0.4; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.1); }
+        .lane-row { display: contents; }
+        .lane-label { padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); position: sticky; left: 0; z-index: 10; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .lane-label .icon { background: white; padding: 8px; border-radius: 50%; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; }
+        .lane-label .name { font-size: 10px; font-weight: 400; text-align: center; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2; }
+        .cell { padding: 12px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+        .cell:last-child { border-right: none; }
+        .cell-zebra { background-color: var(--zebra-bg); }
+        .process-box { width: 100%; max-width: 150px; border-radius: 4px; border-left: 4px solid rgba(0,0,0,0.2); color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; text-decoration: none; transition: all 0.2s ease; }
+        .process-box:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .box-content { padding: 8px; flex-grow: 1; }
+        .box-title-area { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+        .box-title { font-size: 10px; font-weight: 400; text-transform: uppercase; line-height: 1.2; letter-spacing: 0.05em; }
+        .sop-list { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 4px; margin-top: 4px; list-style: none; }
+        .sop-item { font-size: 8px; opacity: 0.9; line-height: 1.2; }
+        .box-footer { background: rgba(0,0,0,0.2); padding: 4px 8px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 4px; }
+        .box-footer span { font-size: 8px; text-transform: uppercase; letter-spacing: -0.02em; }
+        .decision-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; }
+        .diamond { width: 80px; height: 80px; background-color: #f59e0b; border: 2px solid #b45309; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .diamond-text { transform: rotate(-45deg); font-size: 9px; font-weight: 400; text-align: center; color: white; text-transform: uppercase; line-height: 1.1; padding: 4px; }
+        .decision-resp { margin-top: 16px; background-color: #fef3c7; color: #b45309; font-size: 8px; text-transform: uppercase; padding: 2px 4px; border-radius: 2px; display: flex; align-items: center; gap: 4px; }
+        .bg-comercial { background-color: var(--comercial-accent); }
+        .bg-operaciones { background-color: var(--ops-accent); }
+        .bg-administracion { background-color: var(--admin-accent); }
+        .lane-comercial { background-color: var(--comercial-bg); border-color: #bfdbfe; color: #2563eb; }
+        .lane-operaciones { background-color: var(--ops-bg); border-color: #a7f3d0; color: #059669; }
+        .lane-administracion { background-color: var(--admin-bg); border-color: #cbd5e1; color: #334155; }
+        .connector { color: #cbd5e1; }
+        .footer-legend { background-color: #f1f5f9; padding: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
+        .legend-items { display: flex; gap: 32px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-comercial { background-color: var(--comercial-accent); }
+        .dot-operaciones { background-color: var(--ops-accent); }
+        .dot-finanzas { background-color: var(--admin-accent); }
+        .transversal-info { opacity: 0.7; letter-spacing: 0; }
+        .icon-svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+        /* Print / PDF styles */
+        @media print {
+            #actionBar { display: none !important; }
+            body { padding: 8px; background: white; }
+            .main-container { box-shadow: none; border: 1px solid #ccc; border-radius: 4px; }
+            .overflow-wrapper { overflow: visible; }
+            .diagram-grid { min-width: unset; width: 100%; }
+            @page { size: A3 landscape; margin: 8mm; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de acciones -->
+    <div id="actionBar">
+        <a href="index.html" class="action-btn btn-back">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Volver al Panel
+        </a>
+        <button onclick="window.print()" class="action-btn btn-pdf">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Descargar PDF
+        </button>
+    </div>
+
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-text">
+                <h1>FLUJO MACRO GESTIÃN DE PROYECTOS RIVERINE</h1>
+                <p>ConsultorÃ­a de IngenierÃ­a &amp; Estudios | Matriz de Responsabilidades</p>
+            </div>
+            <div class="logo-container">
+                <img src="https://cdn.phototourl.com/free/2026-04-09-cebdf9e5-98f9-4e08-8582-d1442659a7f4.png" alt="Logo Riverine">
+            </div>
+        </header>
+
+        <div class="overflow-wrapper">
+            <div class="diagram-grid">
+
+                <!-- Etapas Header -->
+                <div class="lane-row stage-header">
+                    <div class="lane-label-header">ÃREAS / FASES</div>
+                    <div class="header-cell">
+                        <div class="title">1. Desarrollo de Negocio</div>
+                        <div class="subtitle">CaptaciÃ³n</div>
+                    </div>
+                    <div class="header-cell">
+                        <div class="title">2. AdjudicaciÃ³n e Inicio</div>
+                        <div class="subtitle">FormalizaciÃ³n</div>
+                    </div>
+                    <div class="header-cell">
+                        <div class="title">3. PlanificaciÃ³n</div>
+                        <div class="subtitle">Estrategia</div>
+                    </div>
+                    <div class="header-cell">
+                        <div class="title">4. EjecuciÃ³n Operativa</div>
+                        <div class="subtitle">ProducciÃ³n</div>
+                    </div>
+                    <div class="header-cell">
+                        <div class="title">5. Entrega y TramitaciÃ³n</div>
+                        <div class="subtitle">ValidaciÃ³n</div>
+                    </div>
+                    <div class="header-cell">
+                        <div class="title">6. AprobaciÃ³n y Cierre</div>
+                        <div class="subtitle">FinalizaciÃ³n</div>
+                    </div>
+                </div>
+
+                <!-- Fila Comercial -->
+                <div class="lane-row">
+                    <div class="lane-label lane-comercial">
+                        <div class="icon">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </div>
+                        <div class="name">Comercial / Ventas</div>
+                    </div>
+                    <div class="cell">
+                        <div class="process-box bg-comercial">
+                            <div class="box-content">
+                                <div class="box-title">DetecciÃ³n Oportunidades</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Mercado PÃºblico</li></ul>
+                            </div>
+                            <div class="box-footer"><span>COORD. GESTIÃN Y DESARROLLO</span></div>
+                        </div>
+                        <div class="connector">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                        <div class="process-box bg-comercial">
+                            <div class="box-content">
+                                <div class="box-title">ElaboraciÃ³n Propuesta</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Presupuesto</li><li class="sop-item">â¢ Propuesta TÃ©cnica</li></ul>
+                            </div>
+                            <div class="box-footer"><span>COORD. G&amp;D + GERENTE ING.</span></div>
+                        </div>
+                    </div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-comercial">
+                            <div class="box-content">
+                                <div class="box-title">Traspaso Comercial-Op</div>
+                            </div>
+                            <div class="box-footer"><span>COORD. GESTIÃN Y DESARROLLO</span></div>
+                        </div>
+                    </div>
+                    <div class="cell"></div>
+                    <div class="cell cell-zebra"></div>
+                    <div class="cell"></div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-comercial">
+                            <div class="box-content">
+                                <div class="box-title">Cierre Contractual</div>
+                            </div>
+                            <div class="box-footer"><span>COORD. GESTIÃN Y DESARROLLO</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila Operaciones -->
+                <div class="lane-row">
+                    <div class="lane-label lane-operaciones">
+                        <div class="icon">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        </div>
+                        <div class="name">IngenierÃ­a / Operaciones</div>
+                    </div>
+                    <div class="cell">
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">Factibilidad TÃ©cnica</div>
+                            </div>
+                            <div class="box-footer"><span>GERENTE ING. / LÃDER ING.</span></div>
+                        </div>
+                    </div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">DesignaciÃ³n Equipo</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Acta de Inicio</li></ul>
+                            </div>
+                            <div class="box-footer"><span>LÃDER DE INGENIERÃA</span></div>
+                        </div>
+                    </div>
+                    <div class="cell">
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">Plan de Trabajo</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Cronograma Gantt</li><li class="sop-item">â¢ Plan Terreno</li></ul>
+                            </div>
+                            <div class="box-footer"><span>LÃDER INGENIERÃA</span></div>
+                        </div>
+                    </div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">Levantamiento Terreno</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ TopografÃ­a</li><li class="sop-item">â¢ Estudios HidrÃ¡ulicos</li></ul>
+                            </div>
+                            <div class="box-footer"><span>LÃDER DE OPERACIONES</span></div>
+                        </div>
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">ModelaciÃ³n y Estudios</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Modelos NumÃ©ricos</li></ul>
+                            </div>
+                            <div class="box-footer"><span>LÃDER DE INGENIERÃA</span></div>
+                        </div>
+                    </div>
+                    <div class="cell">
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">Control Calidad</div>
+                            </div>
+                            <div class="box-footer"><span>GERENTE ING. / LÃDER ING.</span></div>
+                        </div>
+                        <div class="decision-container">
+                            <div class="diamond">
+                                <div class="diamond-text">Â¿Ingreso a Autoridad?</div>
+                            </div>
+                            <div class="decision-resp"><span>GERENTE ING. / LÃDER ING.</span></div>
+                        </div>
+                        <div class="process-box bg-operaciones">
+                            <div class="box-content">
+                                <div class="box-title">EmisiÃ³n Entregables</div>
+                            </div>
+                            <div class="box-footer"><span>LÃDER INGENIERÃA</span></div>
+                        </div>
+                    </div>
+                    <div class="cell cell-zebra"></div>
+                </div>
+
+                <!-- Fila AdministraciÃ³n -->
+                <div class="lane-row">
+                    <div class="lane-label lane-administracion">
+                        <div class="icon">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        </div>
+                        <div class="name">Admin. / Finanzas</div>
+                    </div>
+                    <div class="cell"></div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-administracion">
+                            <div class="box-content">
+                                <div class="box-title">Setup Financiero</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Carpeta Drive</li><li class="sop-item">â¢ Config. EDP</li></ul>
+                            </div>
+                            <div class="box-footer"><span>COORD. GESTIÃN Y DESARROLLO</span></div>
+                        </div>
+                    </div>
+                    <div class="cell"></div>
+                    <div class="cell cell-zebra">
+                        <a href="https://drive.google.com/file/d/1AaTdGAJpks9adz9dqiodwj3LJ9tTzwPw/view?usp=drive_link" target="_blank" class="process-box bg-administracion">
+                            <div class="box-content">
+                                <div class="box-title-area">
+                                    <div class="box-title">GestiÃ³n LogÃ­stica</div>
+                                    <svg class="icon-svg" style="opacity:0.7" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </div>
+                                <ul class="sop-list"><li class="sop-item">â¢ VehÃ­culos</li><li class="sop-item">â¢ Pasajes</li></ul>
+                            </div>
+                            <div class="box-footer"><span>ADMINISTRACIÃN</span></div>
+                        </a>
+                        <div class="process-box bg-administracion">
+                            <div class="box-content">
+                                <div class="box-title">Control Gastos</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Rendiciones</li></ul>
+                            </div>
+                            <div class="box-footer"><span>ADMINISTRACIÃN</span></div>
+                        </div>
+                    </div>
+                    <div class="cell"></div>
+                    <div class="cell cell-zebra">
+                        <div class="process-box bg-administracion">
+                            <div class="box-content">
+                                <div class="box-title">LiquidaciÃ³n Proyecto</div>
+                                <ul class="sop-list"><li class="sop-item">â¢ Factura Final</li><li class="sop-item">â¢ Backup Digital</li></ul>
+                            </div>
+                            <div class="box-footer"><span>COORD. GESTIÃN Y DESARROLLO</span></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Leyenda -->
+        <footer class="footer-legend">
+            <div class="legend-items">
+                <div class="legend-item"><div class="dot dot-comercial"></div><span>Ventas</span></div>
+                <div class="legend-item"><div class="dot dot-operaciones"></div><span>IngenierÃ­a</span></div>
+                <div class="legend-item"><div class="dot dot-finanzas"></div><span>Finanzas</span></div>
+            </div>
+            <div class="transversal-info">Procesos Transversales: Control EDP y Seguridad de InformaciÃ³n</div>
+        </footer>
+    </div>
+
+</body>
+</html>
